@@ -7,9 +7,7 @@
 # MAGIC %md
 # MAGIC # Model Predictions & Evaluation
 # MAGIC
-# MAGIC Loads the saved testing dataset, downloads the fitted OneHotEncoder from MLflow, encodes categorical columns, loads the registered Random Forest model by alias, generates predictions, and evaluates against actual `total_demand`.
 # MAGIC
-# MAGIC **Pipeline:** Load test data → Download encoder → Encode → Load model → Predict → Evaluate → Save results
 
 # COMMAND ----------
 
@@ -123,16 +121,16 @@ class ModelPredictions:
         mae, mse, r2 = self.evaluate()
         self.save_results()
 
-        print("\n" + "=" * 50)
-        print("PREDICTION & EVALUATION COMPLETE")
-        print("=" * 50)
-        print(f"Test rows: {len(self.y_test):,}")
-        print(f"MAE:  {mae:.2f}")
-        print(f"MSE:  {mse:.2f}")
-        print(f"R2:   {r2:.4f}")
-        print(f"Model: {self.model_name}@{self.alias}")
-        print(f"Output: {self.output_table}")
-        print("=" * 50)
+        # print("\n" + "=" * 50)
+        # print("PREDICTION & EVALUATION COMPLETE")
+        # print("=" * 50)
+        # print(f"Test rows: {len(self.y_test):,}")
+        # print(f"MAE:  {mae:.2f}")
+        # print(f"MSE:  {mse:.2f}")
+        # print(f"R2:   {r2:.4f}")
+        # print(f"Model: {self.model_name}@{self.alias}")
+        # print(f"Output: {self.output_table}")
+        # print("=" * 50)
 
 
 # Execute
@@ -143,3 +141,17 @@ predictor = ModelPredictions(
     alias=MODEL_ALIAS,
 )
 predictor.run()
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+# Loads the saved testing dataset, downloads the fitted OneHotEncoder from MLflow, encodes categorical columns, loads the registered Random Forest model by alias, generates predictions, and evaluates against actual `total_demand`.
+
+# **Pipeline:** Load test data → Download encoder → Encode → Load model → Predict → Evaluate → Save results

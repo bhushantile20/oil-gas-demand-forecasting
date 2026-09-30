@@ -1,7 +1,11 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # DBTITLE 1,Pipeline Entry Point
 # MAGIC %md
-# MAGIC # Oil & Gas Demand Forecasting - Pipeline Entry Point
+# MAGIC  Entry Point
 
 # COMMAND ----------
 
@@ -21,8 +25,8 @@ PIPELINE = [
     {"name": "Feature Store",     "path": "ML/06_feature_store"},
     # {"name": "Create 1-Day Target", "path": "notebooks/07_create_1day_target"},
     {"name": "Train RF Model (v1)",  "path": "ML/08_train_random_forest_1day"},
-    {"name": "Demand Forecast Training", "path": "ML/Demand Forecast Model Training"},
-    {"name": "Predictions & Evaluation", "path": "ML/Model Predictions and Evaluation"},
+    {"name": "Demand Forecast Training", "path": "ML/Demand_Forecast_Model_Training"},
+    {"name": "Predictions & Evaluation", "path": "ML/Model_Predictions_and_Evaluation"},
 ]
 
 # Run each notebook in sequence
@@ -52,7 +56,8 @@ logger.info("=" * 50)
 
 # COMMAND ----------
 
-# MAGIC %run 
+
 
 # COMMAND ----------
 
+entry point also in py filess, 
