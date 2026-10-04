@@ -6,7 +6,7 @@ resources:
       tasks:
         - task_key: data_preparation
           spark_python_task:
-            python_file: src/Preparation/preparation.py
+            python_file: ../src/Preparation/preparation.py
           email_notifications:
             on_start:
               - bhushantile2003@gmail.com
@@ -20,7 +20,7 @@ resources:
           depends_on:
             - task_key: data_preparation
           spark_python_task:
-            python_file: src/Model_tranining_and_Prediction/model_training_prediction.py
+            python_file: ../src/Model_tranining_and_Prediction/model_training_prediction.py
           email_notifications:
             on_start:
               - bhushantile2003@gmail.com
