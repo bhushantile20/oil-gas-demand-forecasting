@@ -4,8 +4,8 @@
 # environment_version = "6"
 # ///
 # DBTITLE 1,Pipeline Entry Point
-# MAGIC %md
-# MAGIC  Entry Point
+# MAGIC %md 
+# MAGIC **Entry Point**
 
 # COMMAND ----------
 
@@ -24,7 +24,7 @@ PIPELINE = [
     {"name": "Gold Features",      "path": "Gold/05_gold_features"},
     {"name": "Feature Store",     "path": "ML/06_feature_store"},
     # {"name": "Create 1-Day Target", "path": "notebooks/07_create_1day_target"},
-    {"name": "Train RF Model (v1)",  "path": "ML/08_train_random_forest_1day"},
+    # {"name": "Train RF Model (v1)",  "path": "ML/08_train_random_forest_1day"},
     {"name": "Demand Forecast Training", "path": "ML/Demand_Forecast_Model_Training"},
     {"name": "Predictions & Evaluation", "path": "ML/Model_Predictions_and_Evaluation"},
 ]
@@ -53,10 +53,6 @@ logger.info("=" * 50)
 
 # MAGIC %md
 # MAGIC
-
-# COMMAND ----------
-
-
 
 # COMMAND ----------
 

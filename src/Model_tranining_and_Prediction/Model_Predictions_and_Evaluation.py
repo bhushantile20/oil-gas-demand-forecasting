@@ -5,6 +5,25 @@
 # ///
 # DBTITLE 1,Title
 # MAGIC %md
+# MAGIC # Model Predictions & Evaluation 
+# MAGIC
+# MAGIC
+
+# COMMAND ----------
+
+# DBTITLE 1,Imports + Config
+
+
+# COMMAND ----------
+
+# DBTITLE 1,ChampionChallengerEvaluator class
+# Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
+# DBTITLE 1,Title
+# MAGIC %md
 # MAGIC # Model Predictions & Evaluation
 # MAGIC
 # MAGIC
@@ -142,15 +161,7 @@ predictor = ModelPredictions(
 )
 predictor.run()
 
-# COMMAND ----------
 
-
-
-# COMMAND ----------
-
-
-
-# COMMAND ----------
 
 # Loads the saved testing dataset, downloads the fitted OneHotEncoder from MLflow, encodes categorical columns, loads the registered Random Forest model by alias, generates predictions, and evaluates against actual `total_demand`.
 
