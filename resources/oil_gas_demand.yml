@@ -1,43 +1,44 @@
-jobs:
-  oil_gas_demand_pipeline:
-    name: "Oil Gas Demand Forecasting Pipeline"
+resources:
+  jobs:
+    oil_gas_demand_pipeline:
+      name: "Oil Gas Demand Forecasting Pipeline"
 
-    tasks:
-      - task_key: data_preparation
-        spark_python_task:
-          python_file: src/Preparation/preparation.py
-        email_notifications:
-          on_start:
-            - bhushantile2003@gmail.com
-          on_success:
-            - bhushantile2003@gmail.com
-          on_failure:
-            - bhushantile2003@gmail.com
-        environment_key: Default
+      tasks:
+        - task_key: data_preparation
+          spark_python_task:
+            python_file: src/Preparation/preparation.py
+          email_notifications:
+            on_start:
+              - bhushantile2003@gmail.com
+            on_success:
+              - bhushantile2003@gmail.com
+            on_failure:
+              - bhushantile2003@gmail.com
+          environment_key: Default
 
-      - task_key: model_training_prediction
-        depends_on:
-          - task_key: data_preparation
-        spark_python_task:
-          python_file: src/Model_tranining_and_Prediction/model_training_prediction.py
-        email_notifications:
-          on_start:
-            - bhushantile2003@gmail.com
-          on_success:
-            - bhushantile2003@gmail.com
-          on_failure:
-            - bhushantile2003@gmail.com
-        environment_key: Default
+        - task_key: model_training_prediction
+          depends_on:
+            - task_key: data_preparation
+          spark_python_task:
+            python_file: src/Model_tranining_and_Prediction/model_training_prediction.py
+          email_notifications:
+            on_start:
+              - bhushantile2003@gmail.com
+            on_success:
+              - bhushantile2003@gmail.com
+            on_failure:
+              - bhushantile2003@gmail.com
+          environment_key: Default
 
-    queue:
-      enabled: true
+      queue:
+        enabled: true
 
-    environments:
-      - environment_key: Default
-        spec:
-          dependencies:
-            - -r
-              /Workspace/Users/bhushantile2003@gmail.com/oil-gas-demand-forecasting/requirements.txt
-          environment_version: "6"
+      environments:
+        - environment_key: Default
+          spec:
+            dependencies:
+              - -r
+                /Workspace/Users/bhushantile2003@gmail.com/oil-gas-demand-forecasting/requirements.txt
+            environment_version: "6"
 
-    performance_target: PERFORMANCE_OPTIMIZED
+      performance_target: PERFORMANCE_OPTIMIZED
