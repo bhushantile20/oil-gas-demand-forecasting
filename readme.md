@@ -2,4 +2,4 @@ End to end deployment
 
 for a new commit 
 
-checking attempt 2 
+checking attempt 3 - with service principal OAuth 
