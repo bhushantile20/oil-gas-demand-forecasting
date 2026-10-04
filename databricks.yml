@@ -1,0 +1,10 @@
+bundle:
+  name: oil_gas_demand
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true

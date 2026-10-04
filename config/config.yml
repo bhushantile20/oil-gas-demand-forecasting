@@ -1,43 +1,94 @@
-# Environment: dev
-catalog: "oil_gas_demo"
+# =============================================
+# Data Preparation Pipeline Config (preparation.py)
+# =============================================
+data_preparation:
+  catalog_name: oil_gas_demo
 
-# Data paths
-source_csv: "/Volumes/oil_gas_demo/raw/raw_volume/supply_chain_dataset.csv"
+  bronze:
+    source:
+      schema_name: raw
+      volume_name: raw_volume
+      file_name: supply_chain_dataset.csv
+    target:
+      schema_name: bronze
+      table_name: supply_chain_transactions
 
-# Tables
-tables:
-  bronze: "oil_gas_demo.bronze.supply_chain_transactions"
-  silver: "oil_gas_demo.silver.supply_chain_transactions"
-  gold_agg: "oil_gas_demo.gold.daily_demand_agg"
-  gold_features: "oil_gas_demo.gold.demand_features"
-  feature_store: "oil_gas_demo.gold.demand_feature_store"
-  labels: "oil_gas_demo.gold.demand_labels"
-  training_data: "oil_gas_demo.ml_model.training_data"
-  validation_data: "oil_gas_demo.ml_model.validation_data"
-  testing_data: "oil_gas_demo.ml_model.testing_data"
-  predictions: "oil_gas_demo.ml_model.predictions"
-  eval_predictions: "oil_gas_demo.ml_model.model_predictions_eval"
+  silver:
+    source:
+      bronze_schema_name: bronze
+      bronze_table_name: supply_chain_transactions
+    target:
+      silver_schema_name: silver
+      silver_table_name: supply_chain_transactions
 
-# ML configuration
-ml:
-  model_name: "oil_gas_demo.ml_model.random_forest_demand"
-  model_alias: "dev"
-  experiment_name: "/Shared/demand_forecasting_experiment"
-  
-  # Train/val/test split ratios (chronological)
-  split:
-    train: 0.64
-    val: 0.16
-    test: 0.20
-  
-  # RandomForest hyperparameters
-  rf:
-    n_estimators: 200
-    random_state: 42
-    n_jobs: -1
-  
-  # Feature columns
-  features:
-    time_series: ["demand_lag_1", "demand_lag_7", "rolling_avg_7"]
-    categorical: ["product_name", "destination_city"]
-    drop_cols: ["feature_uid", "transaction_date", "total_demand", "product_name", "destination_city"]
+  gold:
+    source:
+      silver_schema_name: silver
+      silver_table_name: supply_chain_transactions
+    target:
+      gold_schema_name: gold
+      aggregated_gold_table_name: daily_demand_agg
+      featured_gold_table_name: demand_features
+
+  feature_store:
+    source:
+      gold_schema_name: gold
+      featured_gold_table_name: demand_features
+    target:
+      feature_schema: gold
+      feature_table_name: demand_feature_store
+      label_table_name: demand_labels
+
+# =============================================
+# Model Training & Prediction Config (model_training_prediction.py)
+# =============================================
+model_training_prediction:
+  catalog_name: oil_gas_demo
+
+  model_training:
+    source:
+      feature_schema: gold
+      feature_table: demand_feature_store
+      label_schema: gold
+      label_table: demand_labels
+    target:
+      ml_schema: ml_model
+      train_table: training_data
+      val_table: validation_data
+      test_table: testing_data
+      predictions_table: predictions
+    model:
+      model_name: random_forest_demand
+      experiment_name: /Shared/demand_forecasting_experiment
+      challenger_alias: challenger
+    features:
+      ts_feature_cols: ["demand_lag_1", "demand_lag_7", "rolling_avg_7"]
+      cat_cols: ["product_name", "destination_city"]
+      drop_cols: ["feature_uid", "transaction_date", "total_demand", "product_name", "destination_city"]
+    split:
+      train: 0.64
+      val: 0.16
+      test: 0.20
+    rf:
+      n_estimators: 200
+      random_state: 42
+      n_jobs: -1
+
+  model_predictions:
+    source:
+      ml_schema: ml_model
+      test_table: testing_data
+    target:
+      output_table: model_predictions_eval
+    model:
+      model_name: random_forest_demand
+      model_alias: challenger
+
+  champion_challenger:
+    source:
+      ml_schema: ml_model
+      validation_table: validation_data
+    model:
+      model_name: random_forest_demand
+      champion_alias: champion
+      challenger_alias: challenger
