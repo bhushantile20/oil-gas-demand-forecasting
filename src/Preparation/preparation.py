@@ -124,11 +124,19 @@ def run_feature_store(config, spark, logging):
 
 if __name__ == "__main__":
     import sys
+    import inspect
     spark = SparkSession.builder.getOrCreate()
-    if len(sys.argv) > 1:
+
+    # Allow custom config path via command-line argument
+    if len(sys.argv) > 1 and sys.argv[1].endswith((".yml", ".yaml")):
         config_path = sys.argv[1]
     else:
-        config_path = Path(__file__).resolve().parents[2] / "config" / "config.yml"
+        # Derive config path from script location using inspect.
+        # inspect.currentframe().f_code.co_filename works in both normal Python
+        # and exec() context (Databricks serverless spark_python_task) where
+        # __file__ is not defined.
+        script_path = inspect.currentframe().f_code.co_filename
+        config_path = str(Path(script_path).resolve().parents[2] / "config" / "config.yml")
     config = load_config(config_path)
 
     logging.info("Bronze - raw data ingestion started. 🔃")
