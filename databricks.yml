@@ -4,10 +4,16 @@ bundle:
 include:
   - resources/*.yml
 
+sync:
+  include:
+    - "config/*.yml"
+    - "src/**/*.py"
+
 targets:
   dev:
     mode: development
     default: true
     workspace:
       host: https://dbc-067bb7fe-f435.cloud.databricks.com
+      root_path: /Workspace/Users/bhushantile2003@gmail.com/.bundle/${bundle.name}/${bundle.target}
       auth_type: oauth-m2m
