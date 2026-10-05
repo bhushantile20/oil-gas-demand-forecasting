@@ -7,6 +7,8 @@ resources:
         - task_key: data_preparation
           spark_python_task:
             python_file: ../src/Preparation/preparation.py
+            parameters:
+              - ${workspace.root_path}/config/config.yml
           email_notifications:
             on_start:
               - bhushantile2003@gmail.com
@@ -21,6 +23,8 @@ resources:
             - task_key: data_preparation
           spark_python_task:
             python_file: ../src/Model_tranining_and_Prediction/model_training_prediction.py
+            parameters:
+              - ${workspace.root_path}/config/config.yml
           email_notifications:
             on_start:
               - bhushantile2003@gmail.com

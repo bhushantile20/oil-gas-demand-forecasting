@@ -70,8 +70,12 @@ def run_champion_challenger(config, spark, logging):
 
 # main execution part
 if __name__ == "__main__":
+    import sys
     spark = SparkSession.builder.getOrCreate()
-    config_path = Path(__file__).resolve().parents[2] / "config" / "config.yml"
+    if len(sys.argv) > 1:
+        config_path = sys.argv[1]
+    else:
+        config_path = Path(__file__).resolve().parents[2] / "config" / "config.yml"
     config = load_config(config_path)
 
     logging.info("Model Training - started training the RandomForest model. ")

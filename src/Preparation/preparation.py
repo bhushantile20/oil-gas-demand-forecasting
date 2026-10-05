@@ -123,8 +123,12 @@ def run_feature_store(config, spark, logging):
     feature_store_obj.save_label_data()
 
 if __name__ == "__main__":
+    import sys
     spark = SparkSession.builder.getOrCreate()
-    config_path = Path(__file__).resolve().parents[2] / "config" / "config.yml"
+    if len(sys.argv) > 1:
+        config_path = sys.argv[1]
+    else:
+        config_path = Path(__file__).resolve().parents[2] / "config" / "config.yml"
     config = load_config(config_path)
 
     logging.info("Bronze - raw data ingestion started. 🔃")
