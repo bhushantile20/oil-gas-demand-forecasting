@@ -37,7 +37,7 @@ resources:
         - environment_key: Default
           spec:
             dependencies:
-              - -r {{ workspace.file_path }}/requirements.txt
+              - -r ../requirements.txt
             environment_version: "6"
 
       performance_target: PERFORMANCE_OPTIMIZED
