@@ -15,5 +15,5 @@ targets:
     default: true
     workspace:
       host: https://dbc-067bb7fe-f435.cloud.databricks.com
-      root_path: /Workspace/Users/bhushantile2003@gmail.com/.bundle/${bundle.name}/${bundle.target}
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
       auth_type: oauth-m2m
