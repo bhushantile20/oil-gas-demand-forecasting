@@ -1,5 +1,7 @@
 import yaml
 import logging
+from pathlib import Path
+
 from pyspark.sql import SparkSession
 
 from Bronze.bronze_ingestion import BronzeLoader
@@ -122,7 +124,8 @@ def run_feature_store(config, spark, logging):
 
 if __name__ == "__main__":
     spark = SparkSession.builder.getOrCreate()
-    config = load_config(r"/Workspace/Users/bhushantile2003@gmail.com/oil-gas-demand-forecasting/config/config.yml")
+    config_path = Path(__file__).resolve().parents[2] / "config" / "config.yml"
+    config = load_config(config_path)
 
     logging.info("Bronze - raw data ingestion started. 🔃")
     run_bronze(config, spark, logger)

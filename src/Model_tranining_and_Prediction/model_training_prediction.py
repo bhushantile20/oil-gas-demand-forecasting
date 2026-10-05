@@ -1,5 +1,6 @@
 import yaml
 import logging
+from pathlib import Path
 from pyspark.sql import SparkSession
 
 from Training.model_training import DemandForecastTraining
@@ -70,7 +71,8 @@ def run_champion_challenger(config, spark, logging):
 # main execution part
 if __name__ == "__main__":
     spark = SparkSession.builder.getOrCreate()
-    config = load_config(r"/Workspace/Users/bhushantile2003@gmail.com/oil-gas-demand-forecasting/config/config.yml")
+    config_path = Path(__file__).resolve().parents[2] / "config" / "config.yml"
+    config = load_config(config_path)
 
     logging.info("Model Training - started training the RandomForest model. ")
     run_model_training(config, spark, logger)
