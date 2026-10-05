@@ -37,8 +37,7 @@ resources:
         - environment_key: Default
           spec:
             dependencies:
-              - -r
-                /Workspace/Users/bhushantile2003@gmail.com/oil-gas-demand-forecasting/requirements.txt
+              - -r {{ workspace.file_path }}/requirements.txt
             environment_version: "6"
 
       performance_target: PERFORMANCE_OPTIMIZED
