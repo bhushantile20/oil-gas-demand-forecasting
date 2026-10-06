@@ -42,6 +42,7 @@ class ModelPredictions:
         self.X_test = None
         self.y_test = None
         self.predictions = None
+        self.latest_version = None
 
     def load_data(self):
         """Step 1: Load the saved testing dataset."""
@@ -51,8 +52,10 @@ class ModelPredictions:
 
     def load_encoder(self):
         """Step 2: Load the OneHotEncoder saved during model training."""
-        latest_versions = self.client.get_latest_versions(self.model_name)
-        run_id = latest_versions[0].run_id
+        versions = self.client.search_model_versions(f"name='{self.model_name}'")
+        latest = max(versions, key=lambda v: int(v.version))
+        self.latest_version = latest.version
+        run_id = latest.run_id
 
         self.logger.info(f"Downloading encoder from run: {run_id}")
         encoder_path = self.client.download_artifacts(run_id=run_id, path="encoder/encoder.joblib")
@@ -85,7 +88,7 @@ class ModelPredictions:
 
     def _generate_predictions(self):
         """Step 4: Load the registered Random Forest model and generate predictions."""
-        model_uri = f"models:/{self.model_name}/latest"
+        model_uri = f"models:/{self.model_name}/{self.latest_version}"
         self.logger.info(f"Loading model from: {model_uri}")
         model = mlflow.pyfunc.load_model(model_uri)
 
