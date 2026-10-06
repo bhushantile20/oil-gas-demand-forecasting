@@ -51,7 +51,7 @@ class ModelPredictions:
 
     def load_encoder(self):
         """Step 2: Load the OneHotEncoder saved during model training."""
-        latest_versions = self.client.get_latest_versions(self.model_name, max_results=1)
+        latest_versions = self.client.get_latest_versions(self.model_name)
         run_id = latest_versions[0].run_id
 
         self.logger.info(f"Downloading encoder from run: {run_id}")
