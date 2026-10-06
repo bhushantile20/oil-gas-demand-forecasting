@@ -16,7 +16,6 @@ class ModelPredictions:
         test_table: Fully qualified testing data table name.
         model_name: Fully qualified registered model name.
         output_table: Fully qualified output predictions table name.
-        alias: Model alias to load (e.g. 'dev').
     """
 
     def __init__(self, spark, logging, catalog_name, config):
@@ -30,7 +29,6 @@ class ModelPredictions:
         test_table_name = config["source"]["test_table"]
         output_table_name = config["target"]["output_table"]
         model_name = config["model"]["model_name"]
-        self.alias = config["model"]["model_alias"]
 
         # Derive fully qualified names
         self.test_table = f"{catalog_name}.{ml_schema}.{test_table_name}"
@@ -53,8 +51,8 @@ class ModelPredictions:
 
     def load_encoder(self):
         """Step 2: Load the OneHotEncoder saved during model training."""
-        model_version = self.client.get_model_version_by_alias(self.model_name, self.alias)
-        run_id = model_version.run_id
+        latest_versions = self.client.get_latest_versions(self.model_name, max_results=1)
+        run_id = latest_versions[0].run_id
 
         self.logger.info(f"Downloading encoder from run: {run_id}")
         encoder_path = self.client.download_artifacts(run_id=run_id, path="encoder/encoder.joblib")
@@ -87,7 +85,7 @@ class ModelPredictions:
 
     def _generate_predictions(self):
         """Step 4: Load the registered Random Forest model and generate predictions."""
-        model_uri = f"models:/{self.model_name}@{self.alias}"
+        model_uri = f"models:/{self.model_name}/latest"
         self.logger.info(f"Loading model from: {model_uri}")
         model = mlflow.pyfunc.load_model(model_uri)
 

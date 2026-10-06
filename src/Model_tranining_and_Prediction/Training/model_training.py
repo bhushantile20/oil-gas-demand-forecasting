@@ -13,27 +13,6 @@ from mlflow.models import infer_signature
 
 class DemandForecastTraining:
     """Trains a RandomForestRegressor on the feature store data.
-
-    Args:
-        spark: Active SparkSession.
-        logging: Logger instance for logging messages.
-        feature_table: Fully qualified feature store table name.
-        label_table: Fully qualified label table name.
-        train_table: Fully qualified training data table name.
-        val_table: Fully qualified validation data table name.
-        test_table: Fully qualified testing data table name.
-        predictions_table: Fully qualified predictions table name.
-        model_name: Fully qualified registered model name.
-        experiment_name: MLflow experiment name.
-        challenger_alias: Alias to assign to the newly trained model.
-        ts_feature_cols: List of time-series feature columns that may have nulls.
-        cat_cols: List of categorical columns to OneHotEncode.
-        drop_cols: List of columns to drop from model features.
-        split_train: Train split ratio.
-        split_val: Validation split ratio.
-        n_estimators: Number of trees in the forest.
-        random_state: Random seed.
-        n_jobs: Number of parallel jobs.
     """
 
     def __init__(self, spark, logging, catalog_name, config):
@@ -54,7 +33,6 @@ class DemandForecastTraining:
         predictions_table_name = config["target"]["predictions_table"]
         model_name = config["model"]["model_name"]
         self.experiment_name = config["model"]["experiment_name"]
-        self.challenger_alias = config["model"]["challenger_alias"]
         self.ts_feature_cols = config["features"]["ts_feature_cols"]
         self.cat_cols = config["features"]["cat_cols"]
         self.drop_cols = config["features"]["drop_cols"]
@@ -268,20 +246,6 @@ class DemandForecastTraining:
         self.registered_version = result.version
         self.logger.info(f"Registered: {self.model_name} version {self.registered_version}")
 
-        # Assign challenger alias to the newly trained model version
-        self.assign_challenger_alias()
-
-    def assign_challenger_alias(self):
-        """Assign 'challenger' alias to the newly trained model version."""
-        self.logger.info(f"Assigning '{self.challenger_alias}' alias to version {self.registered_version}")
-        client = mlflow.tracking.MlflowClient()
-        client.set_registered_model_alias(
-            name=self.model_name,
-            alias=self.challenger_alias,
-            version=self.registered_version,
-        )
-        self.logger.info(f"Alias '{self.challenger_alias}' assigned to {self.model_name} version {self.registered_version}")
-
     def create_prediction_table(self):
         """Create final prediction table with all data predictions."""
         self.logger.info(f"Creating prediction table: {self.predictions_table}")
@@ -299,3 +263,38 @@ class DemandForecastTraining:
 
         self.spark.createDataFrame(predictions_pd).write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(self.predictions_table)
         self.logger.info(f"Predictions saved to: {self.predictions_table} ({len(predictions_pd):,} rows)")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # Args:
+        # spark: Active SparkSession.
+        # logging: Logger instance for logging messages.
+        # feature_table: Fully qualified feature store table name.
+        # label_table: Fully qualified label table name.
+        # train_table: Fully qualified training data table name.
+        # val_table: Fully qualified validation data table name.
+        # test_table: Fully qualified testing data table name.
+        # predictions_table: Fully qualified predictions table name.
+        # model_name: Fully qualified registered model name.
+        # experiment_name: MLflow experiment name.
+        # ts_feature_cols: List of time-series feature columns that may have nulls.
+        # cat_cols: List of categorical columns to OneHotEncode.
+        # drop_cols: List of columns to drop from model features.
+        # split_train: Train split ratio.
+        # split_val: Validation split ratio.
+        # n_estimators: Number of trees in the forest.
+        # random_state: Random seed.
+        # n_jobs: Number of parallel jobs.

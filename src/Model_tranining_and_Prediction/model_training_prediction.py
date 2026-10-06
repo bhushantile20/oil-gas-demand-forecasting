@@ -5,7 +5,6 @@ from pyspark.sql import SparkSession
 
 from Training.model_training import DemandForecastTraining
 from Prediction.model_predictions import ModelPredictions
-from Champion_Challenger.champion_challenger import ChampionChallengerEvaluator
 
 # logging configurations
 
@@ -54,20 +53,6 @@ def run_model_predictions(config, spark, logging):
     predictions_obj.predict_demand()
 
 
-def run_champion_challenger(config, spark, logging):
-    catalog_name = config["model_training_prediction"]["catalog_name"]
-    cc = config["model_training_prediction"]["champion_challenger"]
-
-    evaluator = ChampionChallengerEvaluator(
-        spark=spark,
-        logging=logging,
-        catalog_name=catalog_name,
-        config=cc,
-    )
-
-    evaluator.evaluate()
-
-
 # main execution part
 if __name__ == "__main__":
     import sys
@@ -81,7 +66,7 @@ if __name__ == "__main__":
         # Derive config path from script location using inspect.
         # inspect.currentframe().f_code.co_filename works in both normal Python
         # and exec() context (Databricks serverless spark_python_task) where
-        # __file__ is not defined.
+ 
         script_path = inspect.currentframe().f_code.co_filename
         config_path = str(Path(script_path).resolve().parents[2] / "config" / "config.yml")
     config = load_config(config_path)
@@ -93,7 +78,3 @@ if __name__ == "__main__":
     logging.info("Model Predictions & Evaluation - started generating predictions. ")
     run_model_predictions(config, spark, logger)
     logging.info("Model Predictions & Evaluation completed. ")
-
-    logging.info("Champion-Challenger Evaluation - started comparing models. ")
-    run_champion_challenger(config, spark, logger)
-    logging.info("Champion-Challenger Evaluation completed.")

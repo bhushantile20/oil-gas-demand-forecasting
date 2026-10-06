@@ -60,7 +60,6 @@ model_training_prediction:
     model:
       model_name: random_forest_demand
       experiment_name: /Shared/demand_forecasting_experiment
-      challenger_alias: challenger
     features:
       ts_feature_cols: ["demand_lag_1", "demand_lag_7", "rolling_avg_7"]
       cat_cols: ["product_name", "destination_city"]
@@ -82,13 +81,3 @@ model_training_prediction:
       output_table: model_predictions_eval
     model:
       model_name: random_forest_demand
-      model_alias: challenger
-
-  champion_challenger:
-    source:
-      ml_schema: ml_model
-      validation_table: validation_data
-    model:
-      model_name: random_forest_demand
-      champion_alias: champion
-      challenger_alias: challenger
