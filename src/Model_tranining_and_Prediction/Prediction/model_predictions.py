@@ -1,7 +1,7 @@
 """Model Predictions & Evaluation: load test data, predict, evaluate, save results."""
 
-import mlflow
 import joblib
+import mlflow
 import pandas as pd
 from mlflow import MlflowClient
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -101,7 +101,7 @@ class ModelPredictions:
         mse = mean_squared_error(self.y_test, self.predictions)
         r2 = r2_score(self.y_test, self.predictions)
 
-        self.logger.info(f"--- Evaluation Metrics ---")
+        self.logger.info("--- Evaluation Metrics ---")
         self.logger.info(f"MAE:  {mae:.2f}")
         self.logger.info(f"MSE:  {mse:.2f}")
         self.logger.info(f"R2:   {r2:.4f}")

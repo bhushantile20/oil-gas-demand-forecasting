@@ -10,7 +10,6 @@ import sys
 from datetime import date
 from unittest.mock import MagicMock
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -18,7 +17,6 @@ import pytest
 sys.path.insert(0, "src/Model_tranining_and_Prediction")
 
 from tests.conftest import FakeSparkDataFrame
-
 
 # ---------------------------------------------------------------------------
 # Helper to build a partially-instantiated DemandForecastTraining object
@@ -257,7 +255,7 @@ class TestPrepareFeatures:
 
         # With cat_cols = ["product_name", "destination_city"], categories are
         # oil/gas and Houston/Dallas, so we expect 4 encoded columns.
-        encoded = [c for c in obj.X_train.columns if "_" in c and c not in obj.X_train.columns.difference(obj.encoded_cols)]
+        [c for c in obj.X_train.columns if "_" in c and c not in obj.X_train.columns.difference(obj.encoded_cols)]
         # Verify the encoded_cols attribute is populated correctly
         assert "product_name_oil" in obj.encoded_cols
         assert "product_name_gas" in obj.encoded_cols

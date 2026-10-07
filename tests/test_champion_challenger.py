@@ -17,7 +17,6 @@ sys.path.insert(0, "src/Model_tranining_and_Prediction")
 
 from tests.conftest import FakeSparkDataFrame
 
-
 # ---------------------------------------------------------------------------
 # Helper to bypass __init__
 # ---------------------------------------------------------------------------
@@ -32,8 +31,8 @@ def _make_evaluator_obj(config, logger, **overrides):
     obj.spark = MagicMock()
     obj.catalog_name = "oil_gas_demo"
     obj.config = config
-    obj.model_name = f"oil_gas_demo.ml_model.random_forest_demand"
-    obj.validation_table = f"oil_gas_demo.ml_model.validation_data"
+    obj.model_name = "oil_gas_demo.ml_model.random_forest_demand"
+    obj.validation_table = "oil_gas_demo.ml_model.validation_data"
     obj.champion_alias = config["model"]["champion_alias"]
     obj.challenger_alias = config["model"]["challenger_alias"]
     obj.client = MagicMock()
