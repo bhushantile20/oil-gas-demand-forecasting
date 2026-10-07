@@ -141,18 +141,18 @@ if __name__ == "__main__":
         config_path = str(Path(script_path).resolve().parents[2] / "config" / "config.yml")
     config = load_config(config_path)
 
-    logging.info("Bronze - raw data ingestion started. 🔃")
+    logging.info("Bronze - raw data ingestion started. ")
     run_bronze(config, spark, logger)
-    logging.info("Bronze layer completed. ✅")
+    logging.info("Bronze layer completed. ")
 
-    logging.info("Silver - transformation started on the bronze raw data. 🔃")
+    logging.info("Silver - transformation started on the bronze raw data. ")
     run_silver(config, spark, logger)
-    logging.info("Silver layer completed. ✅")
+    logging.info("Silver layer completed. ")
 
-    logging.info("Gold - aggregations & features engineering started on the transformed data. 🔃")
+    logging.info("Gold - aggregations & features engineering started on the transformed data. ")
     run_gold(config, spark, logger)
-    logging.info("Gold layer completed. ✅")
+    logging.info("Gold layer completed. ")
 
-    logging.info("Feature Store - started registering the feature data in the feature store. 🔃")
+    logging.info("Feature Store - started registering the feature data in the feature store. ")
     run_feature_store(config, spark, logger)
     logging.info("Feature Store layer completed. ✅")
