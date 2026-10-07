@@ -3,12 +3,11 @@ resources:
     oil_gas_demand_pipeline:
       name: "Oil Gas Demand Forecasting Pipeline"
 
-      # Daily schedule 
-      trigger:
-        cron:
-          quartz_cron_expression: "0 0 6 * * ?"
-          timezone_id: "Asia/Kolkata"
-          pause_status: "UNPAUSED"
+      # Daily schedule
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "Asia/Kolkata"
+        pause_status: "UNPAUSED"
 
       tasks:
         - task_key: data_preparation
