@@ -1,9 +1,9 @@
 """Champion-Challenger Evaluation: compare models and promote if better."""
 
-import numpy as np
 import joblib
 import mlflow
 import mlflow.sklearn
+import numpy as np
 import pandas as pd
 from mlflow import MlflowClient
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score

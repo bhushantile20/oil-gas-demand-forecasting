@@ -1,0 +1,15 @@
+
+# Only what CI needs. No databricks-feature-engineering: tests don't import feature_store.py.
+pandas>=2.0.0
+scikit-learn>=1.3.0
+joblib>=1.3.0
+pyyaml>=6.0
+mlflow-skinny>=2.8.0
+pyspark>=3.5.0
+
+# dev tools
+ruff
+mypy
+pytest
+pandas-stubs
+types-PyYAML

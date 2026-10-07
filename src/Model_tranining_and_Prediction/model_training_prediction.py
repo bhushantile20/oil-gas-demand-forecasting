@@ -1,10 +1,11 @@
-import yaml
 import logging
 from pathlib import Path
+
+import yaml
 from pyspark.sql import SparkSession
 
-from Training.model_training import DemandForecastTraining
 from Prediction.model_predictions import ModelPredictions
+from Training.model_training import DemandForecastTraining
 
 # logging configurations
 
@@ -55,8 +56,8 @@ def run_model_predictions(config, spark, logging):
 
 # main execution part
 if __name__ == "__main__":
-    import sys
     import inspect
+    import sys
     spark = SparkSession.builder.getOrCreate()
 
     # Allow custom config path via command-line argument
@@ -66,8 +67,10 @@ if __name__ == "__main__":
         # Derive config path from script location using inspect.
         # inspect.currentframe().f_code.co_filename works in both normal Python
         # and exec() context (Databricks serverless spark_python_task) where
- 
-        script_path = inspect.currentframe().f_code.co_filename
+
+        frame = inspect.currentframe()
+        assert frame is not None
+        script_path = frame.f_code.co_filename
         config_path = str(Path(script_path).resolve().parents[2] / "config" / "config.yml")
     config = load_config(config_path)
 

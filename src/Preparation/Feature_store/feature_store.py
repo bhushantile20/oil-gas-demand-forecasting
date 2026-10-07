@@ -2,8 +2,8 @@
 
 # Dependency: databricks-feature-engineering (pip install databricks-feature-engineering "protobuf>=5.29.4")
 
-from pyspark.sql import functions as F
 from databricks.feature_engineering import FeatureEngineeringClient
+from pyspark.sql import functions as F
 
 
 class DemandFeatureStore:

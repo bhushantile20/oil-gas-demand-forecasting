@@ -1,13 +1,13 @@
-import yaml
 import logging
 from pathlib import Path
 
+import yaml
 from pyspark.sql import SparkSession
 
 from Bronze.bronze_ingestion import BronzeLoader
-from Silver.silver_transformation import SilverTransformer
-from Gold.gold_aggregations import DailyDemandAggregator, DemandFeatureBuilder
 from Feature_store.feature_store import DemandFeatureStore
+from Gold.gold_aggregations import DailyDemandAggregator, DemandFeatureBuilder
+from Silver.silver_transformation import SilverTransformer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -123,8 +123,8 @@ def run_feature_store(config, spark, logging):
     feature_store_obj.save_label_data()
 
 if __name__ == "__main__":
-    import sys
     import inspect
+    import sys
     spark = SparkSession.builder.getOrCreate()
 
     # Allow custom config path via command-line argument
@@ -135,7 +135,9 @@ if __name__ == "__main__":
         # inspect.currentframe().f_code.co_filename works in both normal Python
         # and exec() context (Databricks serverless spark_python_task) where
         # __file__ is not defined.
-        script_path = inspect.currentframe().f_code.co_filename
+        frame = inspect.currentframe()
+        assert frame is not None
+        script_path = frame.f_code.co_filename
         config_path = str(Path(script_path).resolve().parents[2] / "config" / "config.yml")
     config = load_config(config_path)
 

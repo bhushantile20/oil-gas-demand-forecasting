@@ -1,14 +1,14 @@
 """Model Training: train RandomForestRegressor on feature store data."""
 
-import pandas as pd
 import joblib
 import mlflow
 import mlflow.sklearn
+import pandas as pd
+from mlflow.models import infer_signature
 from pyspark.sql import functions as F
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from mlflow.models import infer_signature
+from sklearn.preprocessing import OneHotEncoder
 
 
 class DemandForecastTraining:
