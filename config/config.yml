@@ -1,6 +1,7 @@
 # =============================================
 # Data Preparation Pipeline Config (preparation.py)
 # =============================================
+
 data_preparation:
   catalog_name: oil_gas_demo
 

@@ -1,0 +1,20 @@
+[tool.ruff]
+line-length = 120
+src = ["src/Model_tranining_and_Prediction", "src/Preparation"]
+
+[tool.ruff.lint]
+# E/W = pycodestyle, F = pyflakes (unused imports/vars), I = import sorting
+select = ["E", "F", "W", "I"]
+# long lines are common in this codebase (Spark chains, log f-strings); tighten later
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true   # pyspark / databricks libs have no stubs
+explicit_package_bases = true
+mypy_path = "src/Model_tranining_and_Prediction:src/Preparation"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# lets tests do: from Training.model_training import ...  (same way Databricks runs the scripts)
+pythonpath = ["src/Model_tranining_and_Prediction", "src/Preparation"]
