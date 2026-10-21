@@ -36,6 +36,22 @@ resources:
               - bhushantile2003@gmail.com
           environment_key: Default
 
+        - task_key: champion_challenger_evaluation
+          depends_on:
+            - task_key: model_training_prediction
+          spark_python_task:
+            python_file: ../src/Model_tranining_and_Prediction/Champion_Challenger/champion_challenger.py
+          email_notifications:
+            on_start:
+              - bhushantile2003@gmail.com
+            on_success:
+              - bhushantile2003@gmail.com
+            on_failure:
+              - bhushantile2003@gmail.com
+          environment_key: Default
+          # This step runs model version evaluation and promotion logic
+
+
       queue:
         enabled: true
 

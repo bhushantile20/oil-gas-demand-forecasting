@@ -171,3 +171,49 @@ class ChampionChallengerEvaluator:
             self.logger.info(f"Version {self.challenger_version_number} promoted to Champion!")
         else:
             self.logger.info(f"Challenger not promoted. Champion remains version {self.champion_version_number}.")
+
+
+# main execution part
+if __name__ == "__main__":
+    import inspect
+    import logging
+    import sys
+    from pathlib import Path
+
+    import yaml
+    from pyspark.sql import SparkSession
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    logger = logging.getLogger(__name__)
+
+    spark = SparkSession.builder.getOrCreate()
+
+    # Allow custom config path via command-line argument
+    if len(sys.argv) > 1 and sys.argv[1].endswith((".yml", ".yaml")):
+        config_path = sys.argv[1]
+    else:
+        # Derive config path from script location using inspect.
+        # NOTE: this script is one level deeper than the other entry points
+        # (src/Model_tranining_and_Prediction/Champion_Challenger/), so
+        # parents[3] is the project root (not parents[2]).
+        frame = inspect.currentframe()
+        assert frame is not None
+        script_path = frame.f_code.co_filename
+        config_path = str(Path(script_path).resolve().parents[3] / "config" / "config.yml")
+
+    with open(config_path, "r") as file:
+        config = yaml.safe_load(file)
+
+    catalog_name = config["model_training_prediction"]["catalog_name"]
+    cc = config["model_training_prediction"]["champion_challenger"]
+
+    evaluator = ChampionChallengerEvaluator(
+        spark=spark,
+        logging=logger,
+        catalog_name=catalog_name,
+        config=cc,
+    )
+    evaluator.evaluate()

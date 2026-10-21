@@ -4,6 +4,7 @@ import joblib
 import mlflow
 import mlflow.sklearn
 import pandas as pd
+from mlflow import MlflowClient
 from mlflow.models import infer_signature
 from pyspark.sql import functions as F
 from sklearn.ensemble import RandomForestRegressor
@@ -237,7 +238,7 @@ class DemandForecastTraining:
         self.logger.info(f"MLflow run: {self.run_id}")
 
     def register_model(self):
-        """Register model in Unity Catalog."""
+        """Register model in Unity Catalog and tag the new version as challenger."""
         self.logger.info(f"Registering model: {self.model_name}")
         result = mlflow.register_model(
             model_uri=self.model_info.model_uri,
@@ -245,6 +246,31 @@ class DemandForecastTraining:
         )
         self.registered_version = result.version
         self.logger.info(f"Registered: {self.model_name} version {self.registered_version}")
+
+        # Every newly trained version becomes the challenger.
+        # On the very first run (no champion alias yet), bootstrap the
+        # champion alias to this version so champion-challenger evaluation
+        # always has both aliases available.
+        champion_alias = self.config["model"].get("champion_alias", "champion")
+        challenger_alias = self.config["model"].get("challenger_alias", "challenger")
+
+        client = MlflowClient()
+        try:
+            client.get_model_version_by_alias(self.model_name, champion_alias)
+            champion_exists = True
+        except Exception:
+            champion_exists = False
+
+        if champion_exists:
+            client.set_registered_model_alias(self.model_name, challenger_alias, self.registered_version)
+            self.logger.info(f"Alias '{challenger_alias}' set to version {self.registered_version}")
+        else:
+            client.set_registered_model_alias(self.model_name, champion_alias, self.registered_version)
+            client.set_registered_model_alias(self.model_name, challenger_alias, self.registered_version)
+            self.logger.info(
+                f"Bootstrap: aliases '{champion_alias}' and '{challenger_alias}' "
+                f"both set to version {self.registered_version} (first run)"
+            )
 
     def create_prediction_table(self):
         """Create final prediction table with all data predictions."""
