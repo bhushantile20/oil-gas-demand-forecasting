@@ -48,10 +48,13 @@ def trainer(mock_spark, mock_logger):
             "val_table": "validation_data",
             "test_table": "testing_data",
             "predictions_table": "predictions",
+            "metrics_table": "model_metrics",
         },
         "model": {
             "model_name": "random_forest_demand",
             "experiment_name": "/Shared/demand_forecasting_experiment",
+            "champion_alias": "champion",
+            "challenger_alias": "challenger",
         },
         "features": {
             "ts_feature_cols": ["demand_lag_1"],

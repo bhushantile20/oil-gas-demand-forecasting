@@ -165,9 +165,9 @@ class ChampionChallengerEvaluator:
         self.logger.info(f"Decision: {decision}")
 
         if decision == "PROMOTE":
-            old_champion = self.client.get_model_version_by_alias(self.model_name, "champion")
+            old_champion = self.client.get_model_version_by_alias(self.model_name, self.champion_alias)
             self.client.set_registered_model_alias(self.model_name, "previous-champion", old_champion.version)
-            self.client.set_registered_model_alias(self.model_name, "champion", self.challenger_version_number)
+            self.client.set_registered_model_alias(self.model_name, self.champion_alias, self.challenger_version_number)
             self.logger.info(f"Version {self.challenger_version_number} promoted to Champion!")
         else:
             self.logger.info(f"Challenger not promoted. Champion remains version {self.champion_version_number}.")

@@ -29,6 +29,7 @@ class ModelPredictions:
         test_table_name = config["source"]["test_table"]
         output_table_name = config["target"]["output_table"]
         model_name = config["model"]["model_name"]
+        self.champion_alias = config["model"].get("champion_alias", "champion")
 
         # Derive fully qualified names
         self.test_table = f"{catalog_name}.{ml_schema}.{test_table_name}"
@@ -42,7 +43,7 @@ class ModelPredictions:
         self.X_test = None
         self.y_test = None
         self.predictions = None
-        self.latest_version = None
+        self.model_version = None
 
     def load_data(self):
         """Step 1: Load the saved testing dataset."""
@@ -51,13 +52,12 @@ class ModelPredictions:
         self.logger.info(f"Loaded {self.data.count():,} rows")
 
     def load_encoder(self):
-        """Step 2: Load the OneHotEncoder saved during model training."""
-        versions = self.client.search_model_versions(f"name='{self.model_name}'")
-        latest = max(versions, key=lambda v: int(v.version))
-        self.latest_version = latest.version
-        run_id = latest.run_id
+        """Step 2: Load the OneHotEncoder from the champion model's MLflow run."""
+        champion_version = self.client.get_model_version_by_alias(self.model_name, self.champion_alias)
+        self.model_version = champion_version.version
+        run_id = champion_version.run_id
 
-        self.logger.info(f"Downloading encoder from run: {run_id}")
+        self.logger.info(f"Loading encoder from champion (version {self.model_version}, run {run_id})")
         encoder_path = self.client.download_artifacts(run_id=run_id, path="encoder/encoder.joblib")
         self.encoder = joblib.load(encoder_path)
         self.logger.info(f"Encoder loaded from: {encoder_path}")
@@ -87,8 +87,8 @@ class ModelPredictions:
         self.save_results()
 
     def _generate_predictions(self):
-        """Step 4: Load the registered Random Forest model and generate predictions."""
-        model_uri = f"models:/{self.model_name}/{self.latest_version}"
+        """Step 4: Load the champion model and generate predictions."""
+        model_uri = f"models:/{self.model_name}/{self.champion_alias}"
         self.logger.info(f"Loading model from: {model_uri}")
         model = mlflow.pyfunc.load_model(model_uri)
 
