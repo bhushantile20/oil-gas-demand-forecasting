@@ -25,8 +25,11 @@ def load_config(config_path):
 
 
 def run_model_training(config, spark, logging):
-    catalog_name = config["model_training_prediction"]["catalog_name"]
-    mt = config["model_training_prediction"]["model_training"]
+    mtp = config["model_training_prediction"]
+    catalog_name = mtp["catalog_name"]
+    # Features are shared across training/prediction/champion-challenger:
+    # inject the shared block into this module's config slice.
+    mt = dict(mtp["model_training"], features=mtp["features"])
 
     training_obj = DemandForecastTraining(
         spark=spark,
@@ -41,8 +44,10 @@ def run_model_training(config, spark, logging):
 
 
 def run_model_predictions(config, spark, logging):
-    catalog_name = config["model_training_prediction"]["catalog_name"]
-    mp = config["model_training_prediction"]["model_predictions"]
+    mtp = config["model_training_prediction"]
+    catalog_name = mtp["catalog_name"]
+    # Same shared features block — keeps prediction in sync with training.
+    mp = dict(mtp["model_predictions"], features=mtp["features"])
 
     predictions_obj = ModelPredictions(
         spark=spark,
