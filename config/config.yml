@@ -46,6 +46,13 @@ data_preparation:
 model_training_prediction:
   catalog_name: oil_gas_demo
 
+  # Shared feature definitions — single source of truth used by
+  # training, prediction, and champion-challenger evaluation.
+  features:
+    ts_feature_cols: ["demand_lag_1", "demand_lag_7", "rolling_avg_7"]
+    cat_cols: ["product_name", "destination_city"]
+    drop_cols: ["feature_uid", "transaction_date", "total_demand", "product_name", "destination_city"]
+
   model_training:
     source:
       feature_schema: gold
@@ -64,10 +71,6 @@ model_training_prediction:
       experiment_name: /Shared/demand_forecasting_experiment
       champion_alias: champion
       challenger_alias: challenger
-    features:
-      ts_feature_cols: ["demand_lag_1", "demand_lag_7", "rolling_avg_7"]
-      cat_cols: ["product_name", "destination_city"]
-      drop_cols: ["feature_uid", "transaction_date", "total_demand", "product_name", "destination_city"]
     split:
       train: 0.64
       val: 0.16

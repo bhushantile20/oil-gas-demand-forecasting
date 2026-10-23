@@ -34,6 +34,12 @@ class ChampionChallengerEvaluator:
         self.champion_alias = config["model"]["champion_alias"]
         self.challenger_alias = config["model"]["challenger_alias"]
 
+        # Shared feature definitions (injected from the top-level
+        # model_training_prediction.features block by the entry point).
+        self.cat_cols = config["features"]["cat_cols"]
+        self.drop_cols = config["features"]["drop_cols"]
+        self.ts_feature_cols = config["features"]["ts_feature_cols"]
+
         # Derive fully qualified names
         self.model_name = f"{catalog_name}.{ml_schema}.{model_name}"
         self.validation_table = f"{catalog_name}.{ml_schema}.{validation_table_name}"
@@ -103,13 +109,12 @@ class ChampionChallengerEvaluator:
         val_pd = self.validation_df.toPandas()
 
         # Handle missing values in time-series feature columns
-        for col_name in ["demand_lag_1", "demand_lag_7", "rolling_avg_7"]:
+        for col_name in self.ts_feature_cols:
             if col_name in val_pd.columns:
                 val_pd = val_pd.fillna({col_name: 0.0})
 
-        cat_cols = ["product_name", "destination_city"]
-        drop_cols = ["feature_uid", "transaction_date", "total_demand", "product_name", "destination_city"]
-        drop_present = [c for c in drop_cols if c in val_pd.columns]
+        cat_cols = self.cat_cols
+        drop_present = [c for c in self.drop_cols if c in val_pd.columns]
 
         # Champion features
         champion_encoded = self.champion_encoder.transform(val_pd[cat_cols])
@@ -207,8 +212,11 @@ if __name__ == "__main__":
     with open(config_path, "r") as file:
         config = yaml.safe_load(file)
 
-    catalog_name = config["model_training_prediction"]["catalog_name"]
-    cc = config["model_training_prediction"]["champion_challenger"]
+    mtp = config["model_training_prediction"]
+    catalog_name = mtp["catalog_name"]
+    # Inject the shared features block so the evaluator uses the same
+    # feature definitions as training and prediction.
+    cc = dict(mtp["champion_challenger"], features=mtp["features"])
 
     evaluator = ChampionChallengerEvaluator(
         spark=spark,

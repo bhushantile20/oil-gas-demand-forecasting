@@ -31,6 +31,11 @@ class ModelPredictions:
         model_name = config["model"]["model_name"]
         self.champion_alias = config["model"].get("champion_alias", "champion")
 
+        # Shared feature definitions (injected from the top-level
+        # model_training_prediction.features block by the orchestrator).
+        self.cat_cols = config["features"]["cat_cols"]
+        self.drop_cols = config["features"]["drop_cols"]
+
         # Derive fully qualified names
         self.test_table = f"{catalog_name}.{ml_schema}.{test_table_name}"
         self.model_name = f"{catalog_name}.{ml_schema}.{model_name}"
@@ -64,15 +69,15 @@ class ModelPredictions:
 
     def encode_categories(self):
         """Step 3: Convert product_name and destination_city into numerical columns."""
-        cat_cols = ["product_name", "destination_city"]
+        cat_cols = self.cat_cols
 
         self.data_pd = self.data.toPandas()
         encoded_data = self.encoder.transform(self.data_pd[cat_cols])
         encoded_cols = self.encoder.get_feature_names_out(cat_cols)
         encoded_df = pd.DataFrame(encoded_data, columns=encoded_cols, index=self.data_pd.index)
 
-        drop_cols = ["feature_uid", "transaction_date", "total_demand", "product_name", "destination_city"]
-        self.X_test = pd.concat([self.data_pd.drop(columns=drop_cols), encoded_df], axis=1)
+        drop_present = [c for c in self.drop_cols if c in self.data_pd.columns]
+        self.X_test = pd.concat([self.data_pd.drop(columns=drop_present), encoded_df], axis=1)
         self.y_test = self.data_pd["total_demand"]
 
         self.logger.info(f"X_test: {self.X_test.shape} | y_test: {self.y_test.shape}")
