@@ -32,6 +32,7 @@ class DemandForecastTraining:
         val_table_name = config["target"]["val_table"]
         test_table_name = config["target"]["test_table"]
         predictions_table_name = config["target"]["predictions_table"]
+        metrics_table_name = config["target"]["metrics_table"]
         model_name = config["model"]["model_name"]
         self.experiment_name = config["model"]["experiment_name"]
         self.ts_feature_cols = config["features"]["ts_feature_cols"]
@@ -50,6 +51,7 @@ class DemandForecastTraining:
         self.val_table = f"{catalog_name}.{ml_schema}.{val_table_name}"
         self.test_table = f"{catalog_name}.{ml_schema}.{test_table_name}"
         self.predictions_table = f"{catalog_name}.{ml_schema}.{predictions_table_name}"
+        self.metrics_table = f"{catalog_name}.{ml_schema}.{metrics_table_name}"
         self.model_name = f"{catalog_name}.{ml_schema}.{model_name}"
 
         self.features_df = None
@@ -96,6 +98,7 @@ class DemandForecastTraining:
         self.evaluate_model()
         self.log_to_mlflow()
         self.create_prediction_table()
+        self.write_model_metrics()
 
     def join_data(self):
         """Join features + labels on feature_uid."""
@@ -273,7 +276,7 @@ class DemandForecastTraining:
             )
 
     def create_prediction_table(self):
-        """Create final prediction table with all data predictions."""
+        """Create final prediction table with all data predictions and split labels."""
         self.logger.info(f"Creating prediction table: {self.predictions_table}")
         all_pd = pd.concat([self.train_pd, self.val_pd, self.test_pd], ignore_index=True)
 
@@ -284,43 +287,34 @@ class DemandForecastTraining:
 
         all_pd["predicted_demand"] = self.model.predict(X_all)
 
-        pred_cols = ["feature_uid", "transaction_date", "product_name", "destination_city", "total_demand", "predicted_demand"]
+        # Add split column for drift monitoring (train/val/test)
+        n_train = len(self.train_pd)
+        n_val = len(self.val_pd)
+        n_test = len(self.test_pd)
+        all_pd["split"] = ["train"] * n_train + ["val"] * n_val + ["test"] * n_test
+
+        pred_cols = ["feature_uid", "transaction_date", "product_name", "destination_city", "total_demand", "predicted_demand", "split"]
         predictions_pd = all_pd[[c for c in pred_cols if c in all_pd.columns]]
 
         self.spark.createDataFrame(predictions_pd).write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(self.predictions_table)
         self.logger.info(f"Predictions saved to: {self.predictions_table} ({len(predictions_pd):,} rows)")
 
+    def write_model_metrics(self):
+        """Write evaluation metrics to a Delta table for drift monitoring."""
+        from datetime import datetime, timezone
 
+        run_ts = datetime.now(timezone.utc).replace(tzinfo=None)
 
+        metrics_rows = [
+            {"run_ts": run_ts, "run_id": self.run_id, "split": "val",
+             "mae": self.val_metrics["mae"], "mse": self.val_metrics["mse"],
+             "rmse": self.val_metrics["rmse"], "r2": self.val_metrics["r2"]},
+            {"run_ts": run_ts, "run_id": self.run_id, "split": "test",
+             "mae": self.test_metrics["mae"], "mse": self.test_metrics["mse"],
+             "rmse": self.test_metrics["rmse"], "r2": self.test_metrics["r2"]},
+        ]
+        metrics_df = pd.DataFrame(metrics_rows)
 
-
-
-
-
-
-
-
-
-
-
-
-
-        # Args:
-        # spark: Active SparkSession.
-        # logging: Logger instance for logging messages.
-        # feature_table: Fully qualified feature store table name.
-        # label_table: Fully qualified label table name.
-        # train_table: Fully qualified training data table name.
-        # val_table: Fully qualified validation data table name.
-        # test_table: Fully qualified testing data table name.
-        # predictions_table: Fully qualified predictions table name.
-        # model_name: Fully qualified registered model name.
-        # experiment_name: MLflow experiment name.
-        # ts_feature_cols: List of time-series feature columns that may have nulls.
-        # cat_cols: List of categorical columns to OneHotEncode.
-        # drop_cols: List of columns to drop from model features.
-        # split_train: Train split ratio.
-        # split_val: Validation split ratio.
-        # n_estimators: Number of trees in the forest.
-        # random_state: Random seed.
-        # n_jobs: Number of parallel jobs.
+        self.logger.info(f"Writing model metrics to: {self.metrics_table}")
+        self.spark.createDataFrame(metrics_df).write.mode("append").option("mergeSchema", "true").saveAsTable(self.metrics_table)
+        self.logger.info(f"Model metrics written ({len(metrics_df)} rows)")

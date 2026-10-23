@@ -58,6 +58,7 @@ model_training_prediction:
       val_table: validation_data
       test_table: testing_data
       predictions_table: predictions
+      metrics_table: model_metrics
     model:
       model_name: random_forest_demand
       experiment_name: /Shared/demand_forecasting_experiment
@@ -72,7 +73,7 @@ model_training_prediction:
       val: 0.16
       test: 0.20
     rf:
-      n_estimators: 200
+      n_estimators: 300
       random_state: 42
       n_jobs: -1
 
@@ -84,6 +85,7 @@ model_training_prediction:
       output_table: model_predictions_eval
     model:
       model_name: random_forest_demand
+      champion_alias: champion
 
   champion_challenger:
     source:
@@ -93,3 +95,43 @@ model_training_prediction:
       model_name: random_forest_demand
       champion_alias: champion
       challenger_alias: challenger
+
+
+
+
+# =============================================
+# Drift Monitoring Config (drift_monitoring.py)
+# =============================================
+drift_monitoring:
+  catalog_name: oil_gas_demo
+
+  source:
+    ml_schema: ml_model
+    training_table: training_data
+    prediction_table: testing_data
+    predictions_table: predictions
+    metrics_table: model_metrics
+
+  target:
+    monitoring_schema: monitoring
+    feature_drift_table: feature_drift
+    target_drift_table: target_drift
+    performance_drift_table: performance_drift
+    summary_table: drift_summary
+
+  features:
+    - avg_unit_price
+    - total_inventory
+    - demand_lag_1
+    - demand_lag_7
+    - rolling_avg_7
+    - day_of_week
+
+  psi_bins: 10
+
+  thresholds:
+    ks_alpha: 0.05
+    psi_warning: 0.10
+    psi_drift: 0.25
+    mae_ratio_warning: 1.10
+    mae_ratio_drift: 1.25
