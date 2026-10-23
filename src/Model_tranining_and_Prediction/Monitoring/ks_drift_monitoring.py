@@ -2,10 +2,9 @@
 from datetime import datetime, timezone
 
 import numpy as np
-from scipy.stats import ks_2samp
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-
+from scipy.stats import ks_2samp
 
 REFERENCE_TABLE = "oil_gas_demo.ml_model.training_data"
 CURRENT_TABLE = "oil_gas_demo.ml_model.testing_data"
@@ -74,7 +73,6 @@ def calculate_ks_drift(spark: SparkSession):
     # 5. Convert the results into a Spark DataFrame
     results_df = spark.createDataFrame(results)
 
-    
     # Save results in the monitoring Delta table
     monitoring_schema = "oil_gas_demo.monitoring"
     result_table = f"{monitoring_schema}.ks_drift_results"
