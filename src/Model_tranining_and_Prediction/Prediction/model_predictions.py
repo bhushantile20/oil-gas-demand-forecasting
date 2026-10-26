@@ -93,7 +93,7 @@ class ModelPredictions:
 
     def _generate_predictions(self):
         """Step 4: Load the champion model and generate predictions."""
-        model_uri = f"models:/{self.model_name}/{self.champion_alias}"
+        model_uri = f"models:/{self.model_name}@{self.champion_alias}"
         self.logger.info(f"Loading model from: {model_uri}")
         model = mlflow.pyfunc.load_model(model_uri)
 
